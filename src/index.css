@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-parchment: #f4e4bc;
+  --color-parchment-dark: #d4c49c;
+  --color-vintage-gold: #c5a059;
+  --color-vintage-gold-dark: #a38241;
+  --color-vintage-ink: #2c241e;
+  --color-vintage-paper: #fdf6e3;
+  
+  --font-serif: "Crimson Text", "Playfair Display", serif;
+  --font-handwriting: "Dancing Script", "Great Vibes", cursive;
+
+  --shadow-vintage: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+@layer base {
+  body {
+    @apply bg-[#1a1612] text-vintage-ink font-serif overflow-x-hidden m-0;
+    background-image: radial-gradient(circle at center, #2c241e 0%, #1a1612 100%);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+.parchment-texture {
+  background-color: #f4e4bc;
+  background-image: url("https://www.transparenttextures.com/patterns/p6.png");
+}
+
+.scrapbook-border {
+  border: 12px solid transparent;
+  border-image: url("https://www.transparenttextures.com/patterns/cardboard-flat.png") 30 round;
+}
+
+/* Custom scrollbar for vintage feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1612;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c5a059;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a38241;
+}
+
+#root {
+  min-height: 100vh;
+}

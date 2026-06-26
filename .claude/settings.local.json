@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell(npm install -g vercel --prefer-offline 2>&1)",
+      "PowerShell(npm install -g vercel@37 --registry https://registry.npmjs.org 2>&1)",
+      "PowerShell(vercel --version)",
+      "PowerShell(git config --global user.name)",
+      "PowerShell(git config --global user.email)"
+    ]
+  }
+}
