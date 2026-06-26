@@ -8,6 +8,7 @@ import { SetupPage } from './pages/SetupPage';
 import AdventureList from './pages/AdventureList';
 import AdventurePage from './pages/AdventurePage';
 import { Dashboard } from './pages/Dashboard';
+import { RutaDelDorado } from './pages/RutaDelDorado';
 import './index.css';
 
 function AppContent() {
@@ -35,6 +36,7 @@ function AppContent() {
         <Route path="/" element={<AdventureList />} />
         <Route path="/adventure/:id" element={<AdventurePage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="*" element={<AdventureList />} />
       </Routes>
     </AppContext.Provider>
   );
@@ -44,7 +46,12 @@ export default function App() {
   return (
     <BrowserRouter>
       <main className="min-h-screen bg-[#1a1612]">
-        <AppContent />
+        <Routes>
+          {/* Public route — no login required */}
+          <Route path="/ruta" element={<RutaDelDorado />} />
+          {/* All other routes require auth */}
+          <Route path="/*" element={<AppContent />} />
+        </Routes>
       </main>
     </BrowserRouter>
   );
