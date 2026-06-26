@@ -128,7 +128,7 @@ export function RutaDelDorado() {
                 onComplete={handleScratchComplete}
                 width={Math.min(window.innerWidth - 40, 420)}
                 height={Math.min(window.innerWidth - 40, 420) * 1.33}
-                threshold={70}
+                revealAt={50}
               />
             </div>
 
