@@ -99,7 +99,7 @@ export function RutaDelDorado() {
               onClick={handleContinueToScratch}
               className="text-[#5a4a3a] hover:text-[#8b7355] text-sm font-serif border border-[#5a4a3a]/30 rounded-full px-6 py-2 transition-colors"
             >
-              Ya completé todas las pruebas →
+              Siguiente prueba →
             </motion.button>
           </motion.div>
         )}
