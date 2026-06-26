@@ -1,31 +1,44 @@
 import { useState, useEffect } from 'react';
 import type { Adventure } from '../types/adventure';
 import { INITIAL_ADVENTURES } from '../types/adventure';
+import { collection, doc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import type { QuerySnapshot, DocumentData } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
-export function useAdventures() {
-  const [adventures, setAdventures] = useState<Adventure[]>(() => {
-    const saved = localStorage.getItem('atlas_adventures');
-    return saved ? JSON.parse(saved) : INITIAL_ADVENTURES;
-  });
+export function useAdventures(coupleId: string | null) {
+  const [adventures, setAdventures] = useState<Adventure[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem('atlas_adventures', JSON.stringify(adventures));
-  }, [adventures]);
+    if (!coupleId) { setLoading(false); return; }
 
-  const addAdventure = (adventure: Omit<Adventure, 'id'>) => {
-    const newAdventure: Adventure = {
-      ...adventure,
-      id: adventure.title.toLowerCase().replace(/ /g, '-'),
-      status: 'locked'
-    };
-    setAdventures(prev => [...prev, newAdventure]);
-  };
+    const ref = collection(db, 'couples', coupleId, 'adventures');
+    const unsubscribe = onSnapshot(ref, async (snap: QuerySnapshot<DocumentData>) => {
+      if (snap.empty) {
+        for (const adv of INITIAL_ADVENTURES) {
+          await setDoc(doc(ref, adv.id), adv);
+        }
+        setAdventures(INITIAL_ADVENTURES);
+      } else {
+        setAdventures(snap.docs.map((d: DocumentData) => d.data() as Adventure));
+      }
+      setLoading(false);
+    });
 
-  const completeAdventure = (id: string) => {
-    setAdventures(prev => prev.map(adv => 
-      adv.id === id ? { ...adv, status: 'completed' } : adv
-    ));
-  };
+    return unsubscribe;
+  }, [coupleId]);
 
-  return { adventures, addAdventure, completeAdventure };
+  async function addAdventure(data: Omit<Adventure, 'id' | 'status'>) {
+    if (!coupleId) return;
+    const id = data.title.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+    const newAdv: Adventure = { ...data, id, status: 'locked' };
+    await setDoc(doc(db, 'couples', coupleId, 'adventures', id), newAdv);
+  }
+
+  async function completeAdventure(id: string) {
+    if (!coupleId) return;
+    await updateDoc(doc(db, 'couples', coupleId, 'adventures', id), { status: 'completed' });
+  }
+
+  return { adventures, loading, addAdventure, completeAdventure };
 }
