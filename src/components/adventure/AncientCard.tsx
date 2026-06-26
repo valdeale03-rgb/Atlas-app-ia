@@ -15,7 +15,7 @@ interface AncientCardProps {
 /** Tarjeta de pergamino antiguo reutilizable */
 export function AncientCard({ eyebrow, title, children, ctaLabel, onCta, ctaDisabled }: AncientCardProps) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 sm:py-12">
       <motion.div
         initial={{ opacity: 0, y: 24, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}

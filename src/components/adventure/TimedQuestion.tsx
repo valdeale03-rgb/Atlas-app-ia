@@ -8,6 +8,8 @@ interface TimedQuestionProps {
   answers: string[];
   seconds?: number;
   onCorrect: () => void;
+  /** si true, no ocupa toda la pantalla (para mostrar debajo de otra tarjeta) */
+  embedded?: boolean;
 }
 
 const ACCENTS = new RegExp('[\\u0300-\\u036f]', 'g');
@@ -21,7 +23,7 @@ function normalize(s: string): string {
     .trim();
 }
 
-export function TimedQuestion({ question, answers, seconds = 40, onCorrect }: TimedQuestionProps) {
+export function TimedQuestion({ question, answers, seconds = 40, onCorrect, embedded = false }: TimedQuestionProps) {
   const [timeLeft, setTimeLeft] = useState(seconds);
   const [value, setValue] = useState('');
   const [feedback, setFeedback] = useState<'none' | 'wrong' | 'timeout'>('none');
@@ -72,7 +74,7 @@ export function TimedQuestion({ question, answers, seconds = 40, onCorrect }: Ti
   const danger = timeLeft <= 10;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12">
+    <div className={`flex flex-col items-center justify-center px-5 ${embedded ? 'py-2' : 'min-h-screen py-12'}`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

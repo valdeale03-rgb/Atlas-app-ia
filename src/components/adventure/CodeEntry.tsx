@@ -34,8 +34,14 @@ export function CodeEntry({ correctCode, onUnlock }: CodeEntryProps) {
           <Lock className="text-[#c9a84c] mx-auto mb-6" size={48} />
         </motion.div>
 
-        <p className="text-[#8b7355] font-serif uppercase tracking-[0.3em] text-xs mb-2">Último cofre</p>
-        <h2 className="text-[#e8d5a3] font-serif text-2xl font-bold mb-8">
+        <p className="text-[#8b7355] font-serif uppercase tracking-[0.3em] text-xs mb-4">Última prueba</p>
+        <p className="text-[#e8d5a3] font-serif text-lg leading-relaxed mb-2">
+          Hay criaturas que custodian secretos.
+        </p>
+        <p className="text-[#e8d5a3] font-serif text-lg leading-relaxed mb-8">
+          Las tres ranas te confiaron uno.
+        </p>
+        <h2 className="text-[#c9a84c] font-serif text-xl font-bold mb-6">
           Ingresa el código secreto
         </h2>
 
@@ -60,10 +66,6 @@ export function CodeEntry({ correctCode, onUnlock }: CodeEntryProps) {
             Desbloquear
           </button>
         </form>
-
-        <p className="text-[#5a4a3a] text-xs mt-6 font-serif italic">
-          Una fecha que solo nosotros conocemos...
-        </p>
       </motion.div>
     </div>
   );

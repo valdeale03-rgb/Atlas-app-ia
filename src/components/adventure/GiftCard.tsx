@@ -8,7 +8,7 @@ interface GiftCardProps {
 
 export function GiftCard({ onCta, ctaLabel }: GiftCardProps) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12 gap-8">
       <motion.div
         initial={{ opacity: 0, rotateY: 90 }}
         animate={{ opacity: 1, rotateY: 0 }}
@@ -41,19 +41,19 @@ export function GiftCard({ onCta, ctaLabel }: GiftCardProps) {
             "Quiero verlo crecer con nosotros."
           </p>
         </div>
-
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={onCta}
-          className="mt-8 w-full bg-[#c9a84c] text-[#14271c] py-3.5 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-[#e8d5a3] transition-colors"
-        >
-          {ctaLabel}
-        </motion.button>
       </motion.div>
+
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1 }}
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.97 }}
+        onClick={onCta}
+        className="bg-[#c9a84c] text-[#14271c] px-8 py-3.5 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-[#e8d5a3] transition-colors"
+      >
+        {ctaLabel}
+      </motion.button>
     </div>
   );
 }

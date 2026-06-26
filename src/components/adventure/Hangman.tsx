@@ -35,10 +35,10 @@ export function Hangman({ onWin }: HangmanProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1612] flex flex-col items-center justify-center px-4 py-12">
-      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-        <p className="text-[#8b7355] font-serif text-sm uppercase tracking-[0.3em] mb-1">Primera prueba</p>
-        <h1 className="text-[#c9a84c] font-serif text-3xl font-bold">Descifra la palabra</h1>
+    <div className="min-h-screen bg-[#1a1612] flex flex-col items-center justify-center px-3 py-8 w-full max-w-lg mx-auto">
+      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6">
+        <p className="text-[#8b7355] font-serif text-xs sm:text-sm uppercase tracking-[0.3em] mb-1">Primera prueba</p>
+        <h1 className="text-[#c9a84c] font-serif text-2xl sm:text-3xl font-bold">Descifra la palabra</h1>
       </motion.div>
 
       {/* Gallows SVG */}
@@ -57,7 +57,7 @@ export function Hangman({ onWin }: HangmanProps) {
       </div>
 
       {/* Word blanks */}
-      <div className="flex gap-2 mb-10 flex-wrap justify-center">
+      <div className="flex gap-1 sm:gap-2 mb-8 flex-wrap justify-center px-1">
         {WORD.split('').map((letter, i) => (
           <motion.div
             key={i}
@@ -72,15 +72,15 @@ export function Hangman({ onWin }: HangmanProps) {
                   key="letter"
                   initial={{ opacity: 0, scale: 0.5, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  className="text-[#c9a84c] text-2xl font-bold font-serif w-8 text-center"
+                  className="text-[#c9a84c] text-xl sm:text-2xl font-bold font-serif w-6 sm:w-8 text-center"
                 >
                   {letter}
                 </motion.span>
               ) : (
-                <span className="text-transparent text-2xl font-bold w-8 text-center select-none">_</span>
+                <span className="text-transparent text-xl sm:text-2xl font-bold w-6 sm:w-8 text-center select-none">_</span>
               )}
             </AnimatePresence>
-            <div className="w-8 h-0.5 bg-[#c9a84c]/50 mt-1" />
+            <div className="w-6 sm:w-8 h-0.5 bg-[#c9a84c]/50 mt-1" />
           </motion.div>
         ))}
       </div>
@@ -110,9 +110,9 @@ export function Hangman({ onWin }: HangmanProps) {
       </AnimatePresence>
 
       {/* Keyboard */}
-      <div className="space-y-2">
+      <div className="space-y-1.5 sm:space-y-2 w-full px-1">
         {KEYBOARD_ROWS.map((row, ri) => (
-          <div key={ri} className="flex gap-1.5 justify-center">
+          <div key={ri} className="flex gap-1 sm:gap-1.5 justify-center">
             {row.map(letter => {
               const isGuessed = guessed.has(letter);
               const isCorrect = isGuessed && WORD.includes(letter);
@@ -122,7 +122,7 @@ export function Hangman({ onWin }: HangmanProps) {
                   key={letter}
                   onClick={() => guess(letter)}
                   disabled={isGuessed || won || isLost}
-                  className={`w-9 h-10 rounded-lg text-sm font-bold font-serif transition-all duration-200 ${
+                  className={`flex-1 max-w-[2.5rem] aspect-square sm:aspect-auto sm:h-10 rounded-md sm:rounded-lg text-xs sm:text-sm font-bold font-serif transition-all duration-200 ${
                     isCorrect ? 'bg-[#c9a84c] text-[#1a1612]' :
                     isWrong ? 'bg-[#3a1a1a] text-red-800 opacity-40' :
                     'bg-[#2a2218] text-[#e8d5a3] hover:bg-[#3a3020] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60'

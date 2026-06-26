@@ -13,8 +13,7 @@ type Stage =
   | 'hangman'
   | 'startMessage'    // "Empieza la aventura, pídele tu primera prueba"
   | 'prueba1'         // tarjeta: reúne 8 monedas
-  | 'prueba1Done'     // tarjeta: prueba 1 superada + (luego) pregunta
-  | 'question'        // pregunta con timer 40s: ¿a dónde vamos?
+  | 'prueba1Done'     // tarjeta: prueba 1 superada + pregunta con timer (bajo la tarjeta)
   | 'questionDone'    // "Bien hecho, dile a tu guía..."
   | 'prueba2'         // tarjeta: deja evidencia / cronistas
   | 'prueba3'         // tarjeta: adopta un guardián verde
@@ -79,16 +78,16 @@ export function RutaDelDorado() {
               Empieza la aventura
             </motion.h2>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
-              className="bg-[#2a2218] border border-[#c9a84c]/30 rounded-2xl px-8 py-6 max-w-sm mb-12">
-              <p className="text-[#c9a84c] font-serif text-xl leading-relaxed">
-                Pídele al guía de exploración<br /><span className="font-bold">tu primera prueba.</span>
+              className="bg-[#2a2218] border border-[#c9a84c]/30 rounded-2xl px-6 sm:px-8 py-6 max-w-sm mb-12">
+              <p className="text-[#c9a84c] font-serif text-lg sm:text-xl leading-relaxed">
+                Pídele a tu guía que aliste<br /><span className="font-bold">su caballito metálico.</span> 🏍️
               </p>
             </motion.div>
             <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}
               whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
               onClick={() => setStage('prueba1')}
               className="text-[#5a4a3a] hover:text-[#8b7355] text-sm font-serif border border-[#5a4a3a]/30 rounded-full px-6 py-2 transition-colors">
-              Siguiente →
+              Ya estoy en Campanario →
             </motion.button>
           </motion.div>
         )}
@@ -109,24 +108,12 @@ export function RutaDelDorado() {
           </motion.div>
         )}
 
-        {/* 4 — Prueba 1 superada → aparece pregunta tras unos segundos */}
+        {/* 4 — Prueba 1 superada + pregunta debajo (timer 40s) */}
         {stage === 'prueba1Done' && (
-          <Prueba1DoneCard key="prueba1Done" onTimeout={() => setStage('question')} />
+          <Prueba1DoneCard key="prueba1Done" onCorrect={() => setStage('questionDone')} />
         )}
 
-        {/* 5 — Pregunta con temporizador 40s */}
-        {stage === 'question' && (
-          <motion.div key="question" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -40 }}>
-            <TimedQuestion
-              question="¿A dónde nos dirigiremos ahora?"
-              answers={['parque caldas', 'caldas', 'centro', 'parque']}
-              seconds={40}
-              onCorrect={() => setStage('questionDone')}
-            />
-          </motion.div>
-        )}
-
-        {/* 6 — Bien hecho, dile a tu guía */}
+        {/* 5 — Bien hecho, dile a tu guía */}
         {stage === 'questionDone' && (
           <motion.div key="questionDone" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -40 }}>
             <AncientCard
@@ -145,7 +132,7 @@ export function RutaDelDorado() {
           <motion.div key="prueba2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -40 }}>
             <AncientCard
               eyebrow="Segunda prueba"
-              ctaLabel="Siguiente prueba"
+              ctaLabel="Ya completé la prueba, ¡siguiente!"
               onCta={() => setStage('prueba3')}
             >
               <p>Toda expedición merece ser recordada.</p>
@@ -178,7 +165,7 @@ export function RutaDelDorado() {
         {/* 9 — Vale de regalo */}
         {stage === 'gift' && (
           <motion.div key="gift" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -40 }}>
-            <GiftCard ctaLabel="Última prueba" onCta={() => setStage('code')} />
+            <GiftCard ctaLabel="¡Ir a la última prueba!" onCta={() => setStage('code')} />
           </motion.div>
         )}
 
@@ -261,29 +248,56 @@ export function RutaDelDorado() {
   );
 }
 
-/** Tarjeta "Prueba 1 superada"; tras unos segundos avanza a la pregunta */
-function Prueba1DoneCard({ onTimeout }: { onTimeout: () => void }) {
-  const [showHint, setShowHint] = useState(false);
+/** Tarjeta "Prueba 1 superada" + pregunta que aparece debajo (sin que la tarjeta desaparezca) */
+function Prueba1DoneCard({ onCorrect }: { onCorrect: () => void }) {
+  const [showQuestion, setShowQuestion] = useState(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setShowHint(true), 3500);
-    const t2 = setTimeout(onTimeout, 6000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    // tiempo cómodo de lectura antes de mostrar la pregunta
+    const t = setTimeout(() => setShowQuestion(true), 8000);
+    return () => clearTimeout(t);
   }, []);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -40 }}>
-      <AncientCard eyebrow="Prueba 1 superada ✦" title="La prueba 1 ha sido superada">
-        <p>
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -40 }}
+      className="min-h-screen flex flex-col items-center px-5 py-10 gap-8"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 24, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative max-w-md w-full rounded-lg shadow-2xl border-2 border-vintage-gold px-8 py-10 text-center"
+        style={{ background: 'linear-gradient(135deg, #f4e4bc 0%, #e8d2a0 100%)' }}
+      >
+        <span className="absolute top-2 left-2 text-vintage-gold/50 text-lg">✦</span>
+        <span className="absolute top-2 right-2 text-vintage-gold/50 text-lg">✦</span>
+        <span className="absolute bottom-2 left-2 text-vintage-gold/50 text-lg">✦</span>
+        <span className="absolute bottom-2 right-2 text-vintage-gold/50 text-lg">✦</span>
+        <p className="text-[#8a6d3b] font-serif uppercase tracking-[0.35em] text-xs font-bold mb-3">Prueba 1 superada ✦</p>
+        <h2 className="text-[#3d2b1f] font-serif text-2xl font-bold mb-6 leading-snug">La prueba 1 ha sido superada</h2>
+        <p className="text-[#4a3826] font-serif text-base leading-relaxed">
           Pero ningún explorador puede encontrar el tesoro sin visitar el corazón de la Ciudad Blanca.
           Allí, los viajeros dejan constancia de su paso.
         </p>
-        {showHint && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#8a6d3b] italic text-sm">
-            Prepárate... una pregunta se acerca.
-          </motion.p>
+      </motion.div>
+
+      {/* La pregunta aparece DEBAJO, la tarjeta sigue visible */}
+      <AnimatePresence>
+        {showQuestion && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className="w-full"
+          >
+            <TimedQuestion
+              question="¿A dónde nos dirigiremos ahora?"
+              answers={['parque caldas', 'caldas', 'centro', 'parque']}
+              seconds={40}
+              embedded
+              onCorrect={onCorrect}
+            />
+          </motion.div>
         )}
-      </AncientCard>
+      </AnimatePresence>
     </motion.div>
   );
 }
