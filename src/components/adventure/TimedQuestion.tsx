@@ -117,7 +117,6 @@ export function TimedQuestion({ question, answers, seconds = 40, onCorrect, embe
               value={value}
               onChange={e => { setValue(e.target.value); setFeedback('none'); }}
               placeholder="Escribe tu respuesta..."
-              autoFocus
               className="w-full bg-[#2a2218] border border-[#c9a84c]/40 rounded-xl px-4 py-4 text-[#e8d5a3] placeholder-[#5a4a3a] text-center text-lg focus:outline-none focus:border-[#c9a84c]"
             />
             {feedback === 'wrong' && (

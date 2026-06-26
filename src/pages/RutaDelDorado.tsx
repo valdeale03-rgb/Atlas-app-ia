@@ -10,6 +10,7 @@ import { GiftCard } from '../components/adventure/GiftCard';
 import { CodeEntry } from '../components/adventure/CodeEntry';
 
 type Stage =
+  | 'welcome'         // pantalla de bienvenida para Isa
   | 'hangman'
   | 'startMessage'    // "Empieza la aventura, pídele tu primera prueba"
   | 'prueba1'         // tarjeta: reúne 8 monedas
@@ -22,9 +23,30 @@ type Stage =
   | 'scratch'         // raspar imagen destino final
   | 'final';          // reveal DIZI
 
+const STORAGE_KEY = 'ruta_dorado_stage';
+
 export function RutaDelDorado() {
-  const [stage, setStage] = useState<Stage>('hangman');
+  // #4 — recuperar avance de localStorage al cargar
+  const [stage, setStage] = useState<Stage>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return (saved as Stage) || 'welcome';
+    } catch {
+      return 'welcome';
+    }
+  });
   const [showReveal, setShowReveal] = useState(false);
+
+  // #4 — guardar avance cada vez que cambia la etapa
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, stage); } catch { /* ignore */ }
+  }, [stage]);
+
+  function resetExpedition() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+    setShowReveal(false);
+    setStage('welcome');
+  }
 
   function fireConfetti() {
     const duration = 4000;
@@ -48,6 +70,53 @@ export function RutaDelDorado() {
   return (
     <div className="min-h-screen bg-[#1a1612]">
       <AnimatePresence mode="wait">
+
+        {/* 0 — Bienvenida */}
+        {stage === 'welcome' && (
+          <motion.div
+            key="welcome"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.05 }}
+            className="min-h-screen flex flex-col items-center justify-center px-6 text-center"
+          >
+            <motion.div
+              initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 15 }} className="mb-8"
+            >
+              <Compass className="text-[#c9a84c] mx-auto" size={64} />
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+              className="text-[#e8d5a3] font-serif text-4xl sm:text-5xl font-bold mb-8"
+            >
+              Hola, Isa.
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+              className="text-[#c9a84c] font-serif text-xl sm:text-2xl leading-relaxed max-w-md mb-10"
+            >
+              Estás a punto de empezar la cita más aventurera jamás planeada.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
+              className="mb-12"
+            >
+              <p className="text-[#8b7355] font-serif italic text-lg">Con amor,</p>
+              <p className="text-[#8b7355] font-serif italic text-lg">tu compañero de aventuras.</p>
+            </motion.div>
+
+            <motion.button
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.4 }}
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
+              onClick={() => setStage('hangman')}
+              className="bg-[#c9a84c] text-[#1a1612] px-8 py-4 rounded-full font-bold uppercase tracking-widest text-sm shadow-lg hover:bg-[#e8d5a3] transition-colors"
+            >
+              ¡Empezar expedición!
+            </motion.button>
+          </motion.div>
+        )}
 
         {/* 1 — Ahorcado */}
         {stage === 'hangman' && (
@@ -240,10 +309,56 @@ export function RutaDelDorado() {
               </p>
               <p className="text-[#8b7355] font-serif mt-4 text-sm">♡</p>
             </motion.div>
+
+            {/* Sello de pasaporte */}
+            <motion.div
+              initial={{ scale: 0, rotate: 40, opacity: 0 }}
+              animate={{ scale: 1, rotate: -12, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 160, damping: 11, delay: 1.6 }}
+              className="mt-10 mb-4"
+            >
+              <PassportStampSeal />
+            </motion.div>
+
+            {/* CTA Expedición completada */}
+            <motion.button
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.1 }}
+              className="mt-4 bg-[#c9a84c] text-[#1a1612] px-8 py-3.5 rounded-full font-bold uppercase tracking-widest text-sm shadow-lg cursor-default"
+            >
+              ✦ Expedición completada ✦
+            </motion.button>
           </motion.div>
         )}
 
       </AnimatePresence>
+
+      {/* CTA global: Reiniciar expedición (no aparece en la bienvenida) */}
+      {stage !== 'welcome' && (
+        <button
+          onClick={resetExpedition}
+          className="fixed bottom-4 right-4 z-50 text-[#5a4a3a] hover:text-[#8b7355] text-xs font-serif border border-[#5a4a3a]/30 hover:border-[#8b7355]/50 rounded-full px-3 py-1.5 bg-[#1a1612]/80 backdrop-blur transition-colors"
+        >
+          ↺ Reiniciar expedición
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Sello circular tipo pasaporte */
+function PassportStampSeal() {
+  return (
+    <div className="relative w-32 h-32 sm:w-36 sm:h-36">
+      <div className="absolute inset-0 rounded-full border-4 border-double border-red-800/80 flex flex-col items-center justify-center"
+        style={{ transform: 'rotate(0deg)' }}>
+        <span className="text-red-800/90 font-serif uppercase tracking-[0.2em] text-[9px] sm:text-[10px] font-bold">Pasaporte</span>
+        <span className="text-red-800 font-serif font-bold text-base sm:text-lg leading-tight">ATLAS</span>
+        <div className="w-12 h-px bg-red-800/60 my-1" />
+        <span className="text-red-800/90 font-serif text-[9px] sm:text-[10px]">DIZI · POPAYÁN</span>
+        <span className="text-red-800/70 font-serif text-[8px] mt-0.5">★ SELLADO ★</span>
+      </div>
+      {/* anillo exterior punteado */}
+      <div className="absolute -inset-1 rounded-full border-2 border-dashed border-red-800/30" />
     </div>
   );
 }

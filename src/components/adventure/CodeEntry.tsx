@@ -52,7 +52,6 @@ export function CodeEntry({ correctCode, onUnlock }: CodeEntryProps) {
             value={value}
             onChange={e => { setValue(e.target.value); setError(false); }}
             placeholder="••••••"
-            autoFocus
             maxLength={6}
             className={`w-full bg-[#2a2218] border rounded-xl px-4 py-4 text-[#e8d5a3] placeholder-[#5a4a3a] text-center text-3xl tracking-[0.4em] font-mono focus:outline-none transition-colors ${
               error ? 'border-red-500' : 'border-[#c9a84c]/40 focus:border-[#c9a84c]'
