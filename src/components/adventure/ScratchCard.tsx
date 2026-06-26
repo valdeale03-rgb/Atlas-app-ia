@@ -17,21 +17,55 @@ const ScratchCard: React.FC<ScratchCardProps> = ({
   height = 800,
   revealAt = 50,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Canvas que contiene la IMAGEN (siempre visible debajo)
+  const imgCanvasRef = useRef<HTMLCanvasElement>(null);
+  // Canvas de la capa dorada que se raspa (encima)
+  const scratchRef = useRef<HTMLCanvasElement>(null);
+
   const [isDrawing, setIsDrawing] = useState(false);
   const [canReveal, setCanReveal] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const lastPos = useRef<{ x: number; y: number } | null>(null);
 
+  // 1) Pintar la imagen en su canvas
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = imgCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      // dibujar imagen con object-fit: cover
+      const ir = img.width / img.height;
+      const cr = width / height;
+      let sx = 0, sy = 0, sw = img.width, sh = img.height;
+      if (ir > cr) {
+        sw = img.height * cr;
+        sx = (img.width - sw) / 2;
+      } else {
+        sh = img.width / cr;
+        sy = (img.height - sh) / 2;
+      }
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, width, height);
+      setImgLoaded(true);
+    };
+    img.src = image;
+  }, [image, width, height]);
+
+  // 2) Pintar la capa dorada
+  useEffect(() => {
+    const canvas = scratchRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) return;
 
+    ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = '#c5a059';
     ctx.fillRect(0, 0, width, height);
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 1200; i++) {
       ctx.fillStyle = `rgba(255, 215, 0, ${Math.random() * 0.3})`;
       ctx.fillRect(Math.random() * width, Math.random() * height, 2, 2);
     }
@@ -39,7 +73,7 @@ const ScratchCard: React.FC<ScratchCardProps> = ({
   }, [width, height]);
 
   const getPos = (e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = canvasRef.current;
+    const canvas = scratchRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -51,7 +85,7 @@ const ScratchCard: React.FC<ScratchCardProps> = ({
   };
 
   const scratchLine = (from: { x: number; y: number } | null, to: { x: number; y: number }) => {
-    const ctx = canvasRef.current?.getContext('2d');
+    const ctx = scratchRef.current?.getContext('2d');
     if (!ctx) return;
     const radius = 34;
     if (from) {
@@ -76,11 +110,10 @@ const ScratchCard: React.FC<ScratchCardProps> = ({
   };
 
   const checkProgress = () => {
-    const ctx = canvasRef.current?.getContext('2d', { willReadFrequently: true });
+    const ctx = scratchRef.current?.getContext('2d', { willReadFrequently: true });
     if (!ctx) return;
     const pixels = ctx.getImageData(0, 0, width, height).data;
     let transparent = 0;
-    // muestreo cada 4to pixel para rendimiento
     for (let i = 3; i < pixels.length; i += 16) {
       if (pixels[i] === 0) transparent++;
     }
@@ -89,7 +122,7 @@ const ScratchCard: React.FC<ScratchCardProps> = ({
   };
 
   const revealAll = () => {
-    const ctx = canvasRef.current?.getContext('2d');
+    const ctx = scratchRef.current?.getContext('2d');
     if (ctx) ctx.clearRect(0, 0, width, height);
     setRevealed(true);
     onComplete();
@@ -98,20 +131,22 @@ const ScratchCard: React.FC<ScratchCardProps> = ({
   return (
     <div className="flex flex-col items-center gap-6">
       <div
-        className="relative overflow-hidden rounded-lg shadow-2xl border-4 border-vintage-gold mx-auto"
-        style={{ width: 'max-content' }}
+        className="relative overflow-hidden rounded-lg shadow-2xl border-4 border-vintage-gold mx-auto bg-[#2a2218]"
+        style={{ width, height }}
       >
-        <img
-          src={image}
-          alt="Secret Treasure"
-          style={{ width, height, objectFit: 'cover' }}
-          className="block"
-        />
+        {/* Canvas con la imagen */}
         <canvas
-          ref={canvasRef}
+          ref={imgCanvasRef}
           width={width}
           height={height}
-          className={`absolute top-0 left-0 touch-none ${revealed ? 'pointer-events-none' : 'cursor-crosshair'}`}
+          className="absolute top-0 left-0 block"
+        />
+        {/* Canvas dorado raspable */}
+        <canvas
+          ref={scratchRef}
+          width={width}
+          height={height}
+          className={`absolute top-0 left-0 touch-none ${revealed ? 'pointer-events-none opacity-0 transition-opacity duration-500' : 'cursor-crosshair'}`}
           onMouseDown={() => { setIsDrawing(true); lastPos.current = null; }}
           onMouseUp={() => { setIsDrawing(false); lastPos.current = null; }}
           onMouseLeave={() => { setIsDrawing(false); lastPos.current = null; }}
@@ -120,6 +155,11 @@ const ScratchCard: React.FC<ScratchCardProps> = ({
           onTouchEnd={() => { setIsDrawing(false); lastPos.current = null; }}
           onTouchMove={draw}
         />
+        {!imgLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center text-[#c9a84c] text-sm">
+            Cargando...
+          </div>
+        )}
       </div>
 
       <AnimatePresence>

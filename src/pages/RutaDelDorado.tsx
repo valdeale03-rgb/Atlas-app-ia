@@ -9,6 +9,7 @@ type Stage = 'hangman' | 'message' | 'scratch' | 'final';
 
 export function RutaDelDorado() {
   const [stage, setStage] = useState<Stage>('hangman');
+  const [showReveal, setShowReveal] = useState(false);
 
   function handleHangmanWin() {
     setStage('message');
@@ -19,6 +20,7 @@ export function RutaDelDorado() {
   }
 
   function handleScratchComplete() {
+    // Confetti celebratorio
     const duration = 4000;
     const end = Date.now() + duration;
     const frame = () => {
@@ -26,9 +28,13 @@ export function RutaDelDorado() {
       confetti({ particleCount: 3, angle: 120, spread: 60, origin: { x: 1 }, colors: ['#c5a059', '#f4e4bc', '#fff'] });
       if (Date.now() < end) requestAnimationFrame(frame);
     };
+    // estallido inicial grande
+    confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 }, colors: ['#c5a059', '#f4e4bc', '#fff', '#e8d5a3'] });
     frame();
     if ('vibrate' in navigator) navigator.vibrate([200, 100, 200, 100, 400]);
-    setTimeout(() => setStage('final'), 800);
+    setShowReveal(true);
+    // dejar ver la imagen limpia un buen rato antes del texto final
+    setTimeout(() => setStage('final'), 5000);
   }
 
   return (
@@ -118,8 +124,20 @@ export function RutaDelDorado() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center mb-8"
             >
-              <p className="text-[#8b7355] font-serif uppercase tracking-[0.3em] text-sm mb-2">Última prueba</p>
-              <h2 className="text-[#c9a84c] font-serif text-2xl font-bold">Raspa para revelar el destino final</h2>
+              {showReveal ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                >
+                  <p className="text-[#8b7355] font-serif uppercase tracking-[0.3em] text-sm mb-2">¡Tesoro encontrado!</p>
+                  <h2 className="text-[#e8d5a3] font-serif text-3xl font-bold">Aquí es 🗺️</h2>
+                </motion.div>
+              ) : (
+                <>
+                  <p className="text-[#8b7355] font-serif uppercase tracking-[0.3em] text-sm mb-2">Última prueba</p>
+                  <h2 className="text-[#c9a84c] font-serif text-2xl font-bold">Raspa para revelar el destino final</h2>
+                </>
+              )}
             </motion.div>
 
             <div className="relative">
@@ -132,14 +150,16 @@ export function RutaDelDorado() {
               />
             </div>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="text-[#c9a84c] font-serif text-lg mt-6 animate-pulse"
-            >
-              Raspa para descubrir el tesoro...
-            </motion.p>
+            {!showReveal && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-[#c9a84c] font-serif text-lg mt-6 animate-pulse"
+              >
+                Raspa para descubrir el tesoro...
+              </motion.p>
+            )}
           </motion.div>
         )}
 
